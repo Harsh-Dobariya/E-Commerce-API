@@ -11,7 +11,7 @@ module.exports = {
             token = generateToken(seller._id),
             link = `${process.env.BASE_URL}/sellers/verify/${token}`;
 
-        sendVerificationEmail(seller, link);
+        await sendVerificationEmail(seller, link);
 
         res.status(201).send({ message: `A verification email has been sent to ${seller.email}.` });
     },
@@ -87,7 +87,7 @@ module.exports = {
         const token = generateToken(seller._id);
         const link = `${process.env.BASE_URL}/sellers/verify/${token}`;
 
-        sendVerificationEmail(seller, link);
+        await sendVerificationEmail(seller, link);
 
         res.send({ message: `A verification email has been sent to ${seller.email}.` });
     },
@@ -101,7 +101,7 @@ module.exports = {
         const token = generateToken(seller._id);
         const link = `${process.env.BASE_URL}/sellers/reset/${token}`;
 
-        sendResetPasswordEmail(seller, link);
+        await sendResetPasswordEmail(seller, link);
 
         res.send({ message: `A reset password link send to your registerd email ${seller.email}.` });
     },
@@ -115,8 +115,7 @@ module.exports = {
         seller.password = req.body.password;
         seller.isVerified = true;
 
-        await seller.save();
-        sendConfirmationEmail(seller);
+        await Promise.all([seller.save(), sendConfirmationEmail(seller)])
 
         res.send({ message: "Your password has been updated." });
     }
